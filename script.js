@@ -7,7 +7,9 @@ let startTime = 0;
 let timeoutId = null;
 
 function setBoxHandler(callback) {
-  box.onclick = callback;
+  box.onclick = null;
+  box.onmousedown = null;
+  box.onpointerdown = callback;
 }
 
 function startTest() {
@@ -23,11 +25,14 @@ function startTest() {
   timeoutId = setTimeout(() => {
     box.style.backgroundColor = "green";
     box.textContent = "CLICK!";
-    startTime = Date.now();
 
-    // Set click handler to record reaction
-    setBoxHandler(recordReaction);
-  }, Math.random() * 2000 + 1000); // 1 to 3 seconds random delay
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        startTime = performance.now();
+        setBoxHandler(recordReaction);
+      }, 0);
+    });
+  }, Math.random() * 2000 + 1000);
 }
 
 function handleClickDuringRed() {
@@ -39,7 +44,7 @@ function handleClickDuringRed() {
 function recordReaction() {
   if (!waitingForGreen) return;
 
-  const reactionTime = Date.now() - startTime;
+  const reactionTime = performance.now() - startTime;
   box.textContent = "Click to Start";
   box.style.backgroundColor = "gray";
   result.textContent = `Your reaction time is ${reactionTime} ms!`;
