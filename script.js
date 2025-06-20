@@ -1,10 +1,9 @@
 const box = document.getElementById("box");
-const result = document.getElementById("result");
-const resetBtn = document.getElementById("resetBtn");
 
 let waitingForGreen = false;
 let startTime = 0;
 let timeoutId = null;
+let phase = "idle";
 
 function setBoxHandler(callback) {
   box.onclick = null;
@@ -13,18 +12,17 @@ function setBoxHandler(callback) {
 }
 
 function startTest() {
-  box.textContent = "Wait for green...";
-  box.style.backgroundColor = "red";
-  result.textContent = "";
+  box.innerHTML = `<div class="main-text">Wait for green...</div>`;
+  box.style.backgroundColor = "#d72638";
   waitingForGreen = true;
-  resetBtn.style.display = "none";
+  phase = "waiting";
 
-  // Set click handler for false start check
   setBoxHandler(handleClickDuringRed);
 
   timeoutId = setTimeout(() => {
-    box.style.backgroundColor = "green";
-    box.textContent = "CLICK!";
+    box.style.backgroundColor = "#2ecc71";
+    box.innerHTML = `<div class="main-text">CLICK!</div>`;
+    phase = "ready";
 
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -36,49 +34,42 @@ function startTest() {
 }
 
 function handleClickDuringRed() {
-  if (waitingForGreen && box.style.backgroundColor === "red") {
+  if (waitingForGreen && phase === "waiting") {
     falseStart();
   }
 }
 
 function recordReaction() {
-  if (!waitingForGreen) return;
+  if (!waitingForGreen || phase !== "ready") return;
 
   const reactionTime = performance.now() - startTime;
-  box.textContent = "Click to Start";
-  box.style.backgroundColor = "gray";
-  result.textContent = `Your reaction time is ${reactionTime} ms!`;
-
+  box.innerHTML = `
+    <div class="main-text">Your reaction time is ${Math.round(
+      reactionTime
+    )} ms.</div>
+    <div class="sub-text">Click to try again.</div>
+  `;
+  box.style.backgroundColor = "#7F00FF";
   waitingForGreen = false;
-  resetBtn.style.display = "inline-block";
+  phase = "idle";
 
-  // Set click handler to restart test
   setBoxHandler(startTest);
 }
 
 function falseStart() {
-  clearTimeout(timeoutId); // Cancel the green light
+  clearTimeout(timeoutId);
   timeoutId = null;
-
-  box.textContent = "Too soon! Wait for green.";
-  box.style.backgroundColor = "orange";
-  result.textContent = "";
   waitingForGreen = false;
-  resetBtn.style.display = "inline-block";
+  phase = "idle";
 
-  // Set click handler to restart test
+  box.innerHTML = `
+    <div class="main-text">Too soon! Wait for green.</div>
+    <div class="sub-text">Click to try again.</div>
+  `;
+  box.style.backgroundColor = "#f39c12";
+
   setBoxHandler(startTest);
 }
 
-resetBtn.onclick = () => {
-  result.textContent = "";
-  box.textContent = "Click to Start";
-  box.style.backgroundColor = "gray";
-  resetBtn.style.display = "none";
-
-  // Set click handler to start test again
-  setBoxHandler(startTest);
-};
-
-// Initial setup
+box.innerHTML = `<div class="main-text">Click to Start</div>`;
 setBoxHandler(startTest);
