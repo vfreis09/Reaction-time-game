@@ -1,9 +1,23 @@
+const darkModeButton = document.getElementById("dark");
 const box = document.getElementById("box");
 
 let waitingForGreen = false;
 let startTime = 0;
 let timeoutId = null;
 let phase = "idle";
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark-mode");
+  darkModeButton.textContent = "Light Mode";
+} else {
+  darkModeButton.textContent = "Dark Mode";
+}
+
+darkModeButton.onclick = function toggleDarkMode() {
+  const isDark = document.body.classList.toggle("dark-mode");
+  darkModeButton.textContent = isDark ? "Light Mode" : "Dark Mode";
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+};
 
 function setBoxHandler(callback) {
   box.onclick = null;
@@ -13,7 +27,7 @@ function setBoxHandler(callback) {
 
 function startTest() {
   box.innerHTML = `<div class="main-text">Wait for green...</div>`;
-  box.style.backgroundColor = "#d72638";
+  box.style.backgroundColor = "#5e00b5";
   waitingForGreen = true;
   phase = "waiting";
 
@@ -49,7 +63,7 @@ function recordReaction() {
     )} ms.</div>
     <div class="sub-text">Click to try again.</div>
   `;
-  box.style.backgroundColor = "#7F00FF";
+  box.style.backgroundColor = "#5e00b5";
   waitingForGreen = false;
   phase = "idle";
 
