@@ -67,3 +67,26 @@ body.dark-mode #dark {
   background-color: #ddd;
   color: black;
 }
+
+#scoreboard {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.score-list {
+  font-size: 1.25rem;
+  background-color: #ffffffcc;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .score-list {
+  background-color: #2a2a2a;
+  color: white;
+}

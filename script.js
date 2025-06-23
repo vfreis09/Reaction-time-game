@@ -56,11 +56,12 @@ function handleClickDuringRed() {
 function recordReaction() {
   if (!waitingForGreen || phase !== "ready") return;
 
-  const reactionTime = performance.now() - startTime;
+  const reactionTime = Math.round(performance.now() - startTime);
+  updateScores(reactionTime);
+  renderScores();
+
   box.innerHTML = `
-    <div class="main-text">Your reaction time is ${Math.round(
-      reactionTime
-    )} ms.</div>
+    <div class="main-text">Your reaction time is ${reactionTime} ms.</div>
     <div class="sub-text">Click to try again.</div>
   `;
   box.style.backgroundColor = "#5e00b5";
@@ -85,5 +86,34 @@ function falseStart() {
   setBoxHandler(startTest);
 }
 
+function updateScores(newScore) {
+  let lastScores = JSON.parse(localStorage.getItem("lastScores")) || [];
+  lastScores.unshift(newScore);
+  if (lastScores.length > 5) lastScores.pop();
+  localStorage.setItem("lastScores", JSON.stringify(lastScores));
+
+  let bestScores = JSON.parse(localStorage.getItem("bestScores")) || [];
+  bestScores.push(newScore);
+  bestScores.sort((a, b) => a - b);
+  if (bestScores.length > 5) bestScores = bestScores.slice(0, 5);
+  localStorage.setItem("bestScores", JSON.stringify(bestScores));
+}
+
+function renderScores() {
+  const recent = JSON.parse(localStorage.getItem("lastScores")) || [];
+  const best = JSON.parse(localStorage.getItem("bestScores")) || [];
+
+  document.getElementById("recentScores").innerHTML = `
+    <strong>Last 5 Scores:</strong><br />
+    ${recent.length ? recent.join(" ms, ") + " ms" : "No scores yet."}
+  `;
+
+  document.getElementById("bestScores").innerHTML = `
+    <strong>Best 5 Scores:</strong><br />
+    ${best.length ? best.join(" ms, ") + " ms" : "No scores yet."}
+  `;
+}
+
 box.innerHTML = `<div class="main-text">Click to Start</div>`;
 setBoxHandler(startTest);
+renderScores();
